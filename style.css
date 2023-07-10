@@ -1,0 +1,50 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #F0F5FF;
+}
+
+th,
+td {
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #4285F4;
+    color: white;
+}
+
+td {
+    background-color: #E3F2FD;
+}
+
+input {
+    padding: 6px;
+    border: none;
+    border-radius: 4px;
+    background-color: #BBDEFB;
+}
+
+button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #4285F4;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #3367D6;
+}
+
+#popUp {
+    display: none;
+    padding: 10px;
+    border: 1px solid #4285F4;
+    background-color: #E3F2FD;
+    font-size: 15px;
+}

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>TP Entregable 10/07/2023</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        input#dni {
+            text-align: right;
+        }
+    </style>
+
+    <script>
+        const url = 'https://19ee-181-230-219-190.ngrok.io/student'
+
+        // Ocultar el popup y cargar los estudiantes al cargar la página
+        window.onload = function () {
+            $('#popUp').hide()
+            loadStudents()
+        }
+
+        /* PROMESAS */
+
+        /**
+         * Carga la lista de estudiantes desde la API.
+         * @returns {Promise} Promesa con la respuesta de la API.
+         */
+        function loadStudents() {
+            return new Promise(function (resolve, reject) {
+                var request = new XMLHttpRequest()
+                request.open('GET', url + '/getAll')
+                request.responseType = 'json'
+                request.onload = function () {
+                    if (request.status == 200) {
+                        resolve(request.response)
+                    } else {
+                        reject(Error(request.statusText))
+                    }
+                }
+                request.onerror = function () {
+                    reject(Error('Error: unexpected network error.'))
+                }
+                request.send()
+            })
+        }
+
+        /**
+         * Modifica un estudiante en la API.
+         * @returns {Promise} Promesa con la respuesta de la API.
+         */
+        function modifyStudent() {
+            return new Promise(function (resolve, reject) {
+                var request = new XMLHttpRequest()
+                request.open('POST', url + `/${document.getElementsByName('id2')[0].value}/update`)
+                request.setRequestHeader('Content-Type', 'application/json')
+                // Obtener los valores de los campos de texto del formulario
+                var student = JSON.stringify({
+                    'dni': document.getElementsByName('dni2')[0].value,
+                    'lastName': document.getElementsByName('lastName2')[0].value,
+                    'firstName': document.getElementsByName('firstName2')[0].value,
+                    'email': document.getElementsByName('email2')[0].value,
+                    'cohort': '0',
+                    'status': 'activo',
+                    'gender': 'masculino',
+                    'address': 'abc123',
+                    'phone': '000'
+                })
+                request.onload = function () {
+                    if (request.status == 200) {
+                        resolve(request.response)
+                    } else {
+                        reject(Error(request.statusText))
+                    }
+                }
+                request.onerror = function () {
+                    reject(Error('Error: unexpected network error.'))
+                }
+                request.send(student)
+            })
+        }
+
+        /**
+         * Elimina un estudiante de la API.
+         * @param {number} id - El ID del estudiante a eliminar.
+         * @returns {Promise} Promesa con la respuesta de la API.
+         */
+        function removeStudent(id) {
+            return new Promise(function (resolve, reject) {
+                var request = new XMLHttpRequest()
+                request.open('POST', url + `/${id}/delete`)
+                request.setRequestHeader('Content-Type', 'application/json')
+                request.onload = function () {
+                    if (request.status == 200) {
+                        resolve(request.response)
+                    } else {
+                        reject(Error(request.statusText))
+                    }
+                }
+                request.onerror = function () {
+                    reject(Error('Error: unexpected network error.'))
+                }
+                request.send()
+            })
+        }
+
+        /**
+         * Agrega un estudiante a la API.
+         * @returns {Promise} Promesa con la respuesta de la API.
+         */
+        function addStudent() {
+            return new Promise(function (resolve, reject) {
+                var request = new XMLHttpRequest()
+                request.open('POST', url)
+                request.setRequestHeader('Content-Type', 'application/json')
+                // Obtener los valores de los campos de texto del formulario
+                var student = JSON.stringify({
+                    'dni': document.getElementById('dni').value,
+                    'lastName': document.getElementById('lastName').value,
+                    'firstName': document.getElementById('firstName').value,
+                    'email': document.getElementById('email').value,
+                    'cohort': '0',
+                    'status': 'activo',
+                    'gender': 'masculino',
+                    'address': 'abc123',
+                    'phone': '000'
+                })
+                request.onload = function () {
+                    if (request.status == 201) {
+                        resolve(request.response)
+                    } else {
+                        reject(Error(request.statusText))
+                    }
+                }
+                request.onerror = function () {
+                    reject(Error('Error: unexpected network error.'))
+                }
+                request.send(student)
+            })
+        }
+
+        /* FUNCIONES QUE CONSUMEN LAS PROMESAS */
+
+        /**
+         * Guarda un estudiante en la API y actualiza la tabla.
+         */
+        function saveStudent() {
+            // Verificar si los campos obligatorios están completos
+            if (document.getElementById('dni').value.trim() !== '' &&
+                document.getElementById('lastName').value.trim() !== '' &&
+                document.getElementById('firstName').value.trim() !== '' &&
+                document.getElementById('email').value.trim() !== '') {
+                addStudent().then(() => {
+                    getStudents()
+                }).catch(reason => {
+                    console.error(reason)
+                })
+            }
+        }
+
+        /**
+         * Obtiene la lista de estudiantes de la API y los muestra en la tabla.
+         */
+        function getStudents() {
+            loadStudents().then(response => {
+                var tbody = document.querySelector('tbody')
+                tbody.innerHTML = ''
+                response.forEach(student => {
+                    var row = tbody.insertRow()
+                    var idCell = row.insertCell()
+                    idCell.innerHTML = student.id
+                    var dniCell = row.insertCell()
+                    dniCell.innerHTML = student.dni
+                    var lastNameCell = row.insertCell()
+                    lastNameCell.innerHTML = student.lastName
+                    var firstNameCell = row.insertCell()
+                    firstNameCell.innerHTML = student.firstName
+                    var emailCell = row.insertCell()
+                    emailCell.innerHTML = student.email
+                    var studentData = JSON.stringify({
+                        'id': student.id,
+                        'dni': student.dni,
+                        'lastName': student.lastName,
+                        'firstName': student.firstName,
+                        'email': student.email,
+                    })
+                    var viewCell = row.insertCell()
+                    viewCell.innerHTML = `<button onclick='viewStudent(${studentData})'>View</button>`
+                    var deleteCell = row.insertCell()
+                    deleteCell.innerHTML = `<button onclick='deleteStudent(${student.id})'>Delete</button>`
+                })
+                // Limpiar los campos del formulario y poner el foco en el campo DNI
+                document.getElementById('dni').value = ''
+                document.getElementById('lastName').value = ''
+                document.getElementById('firstName').value = ''
+                document.getElementById('email').value = ''
+                document.getElementById('dni').focus()
+            }).catch(reason => {
+                console.error(reason)
+            })
+        }
+
+        /**
+         * Muestra los datos de un estudiante en un popup.
+         * @param {object} student - Los datos del estudiante a mostrar.
+         */
+        function viewStudent(student) {
+            document.getElementsByName('id2')[0].value = student.id
+            document.getElementsByName('dni2')[0].value = student.dni
+            document.getElementsByName('lastName2')[0].value = student.lastName
+            document.getElementsByName('firstName2')[0].value = student.firstName
+            document.getElementsByName('email2')[0].value = student.email
+            // Mostrar el popup con los datos del estudiante
+            $('#popUp').dialog({
+                closeText: ''
+            }).css('font-size', '15px')
+        }
+
+        /**
+         * Modifica un estudiante en la API y actualiza la tabla.
+         */
+        function updateStudent() {
+            // Verificar si los campos obligatorios están completos
+            if (document.getElementsByName('dni2')[0].value.trim() !== '' &&
+                document.getElementsByName('lastName2')[0].value.trim() !== '' &&
+                document.getElementsByName('firstName2')[0].value.trim() !== '' &&
+                document.getElementsByName('email2')[0].value.trim() !== '') {
+                modifyStudent().then(() => {
+                    // Cerrar el popup y actualizar la tabla de estudiantes
+                    $('#popUp').dialog('close')
+                    getStudents()
+                }).catch(reason => {
+                    console.error(reason)
+                })
+            }
+        }
+
+        /**
+         * Elimina un estudiante de la API y actualiza la tabla.
+         * @param {number} id - El ID del estudiante a eliminar.
+         */
+        function deleteStudent(id) {
+            removeStudent(id).then(() => {
+                getStudents()
+            }).catch(reason => {
+                console.error(reason)
+            })
+        }
+
+
+        /* FUNCIONES EXTRA */
+
+        /**
+         * Verifica si la tecla presionada es un número.
+         * @param {object} event - El objeto del evento de teclado.
+         */
+        function allowNumbersOnly(event) {
+            var keyCode = event.which || event.keyCode;
+            if (keyCode < 48 || keyCode > 57) {
+                event.preventDefault();
+            }
+        }
+        /**
+        * Verifica si la tecla presionada es una letra.
+         * @param {object} event - El objeto del evento de teclado.
+        */
+        function allowLettersOnly(event) {
+            var keyCode = event.which || event.keyCode;
+            if ((keyCode >= 65 && keyCode <= 90) || (keyCode >= 97 && keyCode <= 122)) {
+                return true;
+            } else {
+                event.preventDefault();
+            }
+        }
+
+
+
+
+    </script>
+</head>
+
+<body>
+    <div id='popUp'>
+        <table>
+            <tr>
+                <td><label for='id2' style='font-weight: bold'>Id / Dni</label></td>
+                <td><input name='id2' style='text-align: right' readonly></td>
+            </tr>
+            <tr>
+                <td><label for='lastName2' style='font-weight: bold'>Last Name</label></td>
+                <td><input name='lastName2' style='text-align: right'></td>
+            </tr>
+            <tr>
+                <td><label for='firstName2' style='font-weight: bold'>First Name</label></td>
+                <td><input name='firstName2' style='text-align: right'></td>
+            </tr>
+            <tr>
+                <td><label for='email2' style='font-weight: bold'>Email</label></td>
+                <td><input name='email2' style='text-align: right'></td>
+            </tr>
+            <tr>
+                <td colspan='2' style='text-align: center'><button onclick='updateStudent()'>Update</button></td>
+            </tr>
+        </table>
+    </div>
+
+    <table style='border: 1px solid'>
+        <thead>
+            <tr>
+                <th style='text-align: left'>Id / Dni</th>
+                <th style='text-align: left'>Last Name</th>
+                <th style='text-align: left'>First Name</th>
+                <th style='text-align: left'>Email</th>
+                <th colspan='2'></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+            <tr>
+                <td><input id='id' style='text-align: right' onkeypress='allowNumbersOnly(event)'></td>
+                <td><input id='lastName' style='text-align: right' onkeypress='allowLettersOnly(event)'></td>
+                <td><input id='firstName' style='text-align: right' onkeypress='allowLettersOnly(event)'></td>
+                <td><input id='email'></td>
+                <td colspan='2' style='text-align: center'><button onclick='saveStudent()'>Add</button></td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>
+        document.getElementById('dni').addEventListener('keypress', allowNumbersOnly);
+        document.getElementsByName('id2')[0].addEventListener('keypress', allowNumbersOnly);
+        document.getElementsById('lastName').addEventListener('keypress', allowLettersOnly);
+        document.getElementsById('firstName').addEventListener('keypress', allowLettersOnly);
+    </script>
+</body>
+
+</html>
