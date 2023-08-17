@@ -2,24 +2,34 @@
 <html>
 
 <head>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TP Entregable 10/07/2023</title>
 
     <link rel="stylesheet" href="style.css">
+    <link rel='stylesheet' href='https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css'>
+    <script src='https://code.jquery.com/jquery-1.12.4.js'></script>
+    <script src='https://code.jquery.com/ui/1.12.1/jquery-ui.js'></script>
 
-    <style>
-        input#dni {
-            text-align: right;
-        }
-    </style>
+
+
 
     <script>
-        const url = 'https://19ee-181-230-219-190.ngrok.io/student'
 
         // Ocultar el popup y cargar los estudiantes al cargar la página
+        // $(document).ready(function () {
+        //     $('#popUp').hide();
+        //     getStudents(); // Cambiado de loadStudents() a getStudents()
+        // });
+
+        url = "https://9744-181-231-122-56.ngrok-free.app/student"
+
         window.onload = function () {
-            $('#popUp').hide()
-            loadStudents()
+            getStudents();
         }
+
 
         /* PROMESAS */
 
@@ -28,23 +38,37 @@
          * @returns {Promise} Promesa con la respuesta de la API.
          */
         function loadStudents() {
+            //     return new Promise(function (resolve, reject) {
+            //         $.ajax({
+            //             url: url + '/getAll',
+            //             dataType: 'json',
+            //             success: function (response) {
+            //                 resolve(response);
+            //             },
+            //             error: function (error) {
+            //                 reject(Error(error.statusText));
+            //             }
+            //         });
+            //     });
+            // }
             return new Promise(function (resolve, reject) {
-                var request = new XMLHttpRequest()
-                request.open('GET', url + '/getAll')
-                request.responseType = 'json'
+                var request = new XMLHttpRequest();
+                request.open('GET', url + '/getAll');
+                request.responseType = 'json';
                 request.onload = function () {
                     if (request.status == 200) {
-                        resolve(request.response)
+                        resolve(request.response);
                     } else {
-                        reject(Error(request.statusText))
+                        reject(Error(request.statusText));
                     }
                 }
                 request.onerror = function () {
-                    reject(Error('Error: unexpected network error.'))
+                    alert("Error");
                 }
-                request.send()
-            })
+                request.send();
+            });
         }
+
 
         /**
          * Modifica un estudiante en la API.
@@ -52,11 +76,7 @@
          */
         function modifyStudent() {
             return new Promise(function (resolve, reject) {
-                var request = new XMLHttpRequest()
-                request.open('POST', url + `/${document.getElementsByName('id2')[0].value}/update`)
-                request.setRequestHeader('Content-Type', 'application/json')
-                // Obtener los valores de los campos de texto del formulario
-                var student = JSON.stringify({
+                var student = {
                     'dni': document.getElementsByName('dni2')[0].value,
                     'lastName': document.getElementsByName('lastName2')[0].value,
                     'firstName': document.getElementsByName('firstName2')[0].value,
@@ -66,19 +86,21 @@
                     'gender': 'masculino',
                     'address': 'abc123',
                     'phone': '000'
-                })
-                request.onload = function () {
-                    if (request.status == 200) {
-                        resolve(request.response)
-                    } else {
-                        reject(Error(request.statusText))
+                };
+
+                $.ajax({
+                    url: url + `/${document.getElementsByName('id2')[0].value}/update`,
+                    type: 'POST',
+                    data: JSON.stringify(student),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        resolve(response);
+                    },
+                    error: function (error) {
+                        reject(Error(error.statusText));
                     }
-                }
-                request.onerror = function () {
-                    reject(Error('Error: unexpected network error.'))
-                }
-                request.send(student)
-            })
+                });
+            });
         }
 
         /**
@@ -88,21 +110,18 @@
          */
         function removeStudent(id) {
             return new Promise(function (resolve, reject) {
-                var request = new XMLHttpRequest()
-                request.open('POST', url + `/${id}/delete`)
-                request.setRequestHeader('Content-Type', 'application/json')
-                request.onload = function () {
-                    if (request.status == 200) {
-                        resolve(request.response)
-                    } else {
-                        reject(Error(request.statusText))
+                $.ajax({
+                    url: url + `/${id}/delete`,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    success: function (response) {
+                        resolve(response);
+                    },
+                    error: function (error) {
+                        reject(Error(error.statusText));
                     }
-                }
-                request.onerror = function () {
-                    reject(Error('Error: unexpected network error.'))
-                }
-                request.send()
-            })
+                });
+            });
         }
 
         /**
@@ -111,11 +130,7 @@
          */
         function addStudent() {
             return new Promise(function (resolve, reject) {
-                var request = new XMLHttpRequest()
-                request.open('POST', url)
-                request.setRequestHeader('Content-Type', 'application/json')
-                // Obtener los valores de los campos de texto del formulario
-                var student = JSON.stringify({
+                var student = {
                     'dni': document.getElementById('dni').value,
                     'lastName': document.getElementById('lastName').value,
                     'firstName': document.getElementById('firstName').value,
@@ -125,19 +140,21 @@
                     'gender': 'masculino',
                     'address': 'abc123',
                     'phone': '000'
-                })
-                request.onload = function () {
-                    if (request.status == 201) {
-                        resolve(request.response)
-                    } else {
-                        reject(Error(request.statusText))
+                };
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: JSON.stringify(student),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        resolve(response);
+                    },
+                    error: function (error) {
+                        reject(Error(error.statusText));
                     }
-                }
-                request.onerror = function () {
-                    reject(Error('Error: unexpected network error.'))
-                }
-                request.send(student)
-            })
+                });
+            });
         }
 
         /* FUNCIONES QUE CONSUMEN LAS PROMESAS */
@@ -152,10 +169,10 @@
                 document.getElementById('firstName').value.trim() !== '' &&
                 document.getElementById('email').value.trim() !== '') {
                 addStudent().then(() => {
-                    getStudents()
+                    getStudents();
                 }).catch(reason => {
-                    console.error(reason)
-                })
+                    console.error(reason);
+                });
             }
         }
 
@@ -164,59 +181,86 @@
          */
         function getStudents() {
             loadStudents().then(response => {
-                var tbody = document.querySelector('tbody')
-                tbody.innerHTML = ''
+                var tbody = document.getElementById('tbody');
+                alert(tbody.innerHTML)
+                tbody.innerHTML = '';
                 response.forEach(student => {
-                    var row = tbody.insertRow()
-                    var idCell = row.insertCell()
-                    idCell.innerHTML = student.id
-                    var dniCell = row.insertCell()
-                    dniCell.innerHTML = student.dni
-                    var lastNameCell = row.insertCell()
-                    lastNameCell.innerHTML = student.lastName
-                    var firstNameCell = row.insertCell()
-                    firstNameCell.innerHTML = student.firstName
-                    var emailCell = row.insertCell()
-                    emailCell.innerHTML = student.email
+                    var row = tbody.insertRow();
+                    var idCell = row.insertCell();
+                    idCell.innerHTML = student.id;
+                    var dniCell = row.insertCell();
+                    dniCell.innerHTML = student.dni;
+                    var lastNameCell = row.insertCell();
+                    lastNameCell.innerHTML = student.lastName;
+                    var firstNameCell = row.insertCell();
+                    firstNameCell.innerHTML = student.firstName;
+                    var emailCell = row.insertCell();
+                    emailCell.innerHTML = student.email;
                     var studentData = JSON.stringify({
                         'id': student.id,
                         'dni': student.dni,
                         'lastName': student.lastName,
                         'firstName': student.firstName,
                         'email': student.email,
-                    })
-                    var viewCell = row.insertCell()
-                    viewCell.innerHTML = `<button onclick='viewStudent(${studentData})'>View</button>`
-                    var deleteCell = row.insertCell()
-                    deleteCell.innerHTML = `<button onclick='deleteStudent(${student.id})'>Delete</button>`
-                })
+                    });
+                    var viewCell = row.insertCell();
+                    viewCell.innerHTML = `<button onclick='viewStudent(${studentData})'>View</button>`;
+                    var deleteCell = row.insertCell();
+                    deleteCell.innerHTML = `<button onclick='deleteStudent(${student.id})'>Delete</button>`;
+                });
                 // Limpiar los campos del formulario y poner el foco en el campo DNI
-                document.getElementById('dni').value = ''
-                document.getElementById('lastName').value = ''
-                document.getElementById('firstName').value = ''
-                document.getElementById('email').value = ''
-                document.getElementById('dni').focus()
+                document.getElementById('dni').value = '';
+                document.getElementById('lastName').value = '';
+                document.getElementById('firstName').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('dni').focus();
             }).catch(reason => {
-                console.error(reason)
-            })
+                console.error(reason);
+            });
         }
 
         /**
          * Muestra los datos de un estudiante en un popup.
          * @param {object} student - Los datos del estudiante a mostrar.
          */
+        // function viewStudent(student) {
+        //     document.getElementsByName('id2')[0].value = student.id;
+        //     document.getElementsByName('dni2')[0].value = student.dni;
+        //     document.getElementsByName('lastName2')[0].value = student.lastName;
+        //     document.getElementsByName('firstName2')[0].value = student.firstName;
+        //     document.getElementsByName('email2')[0].value = student.email;
+        //     // Mostrar el popup con los datos del estudiante
+        //     $('#popUp').dialog({
+        //         closeText: ''
+        //     }).css('font-size', '15px');
+        // }
         function viewStudent(student) {
-            document.getElementsByName('id2')[0].value = student.id
-            document.getElementsByName('dni2')[0].value = student.dni
-            document.getElementsByName('lastName2')[0].value = student.lastName
-            document.getElementsByName('firstName2')[0].value = student.firstName
-            document.getElementsByName('email2')[0].value = student.email
+    // Obtener el ID del estudiante
+    const id = student.id;
+
+    // Obtener los datos del estudiante de la API
+    $.ajax({
+        url: url + `/${id}/get`,
+        type: 'GET',
+        contentType: 'application/json',
+        success: function (response) {
+            // Actualizar los campos del formulario con los datos del estudiante
+            document.getElementsByName('id2')[0].value = response.id;
+            document.getElementsByName('dni2')[0].value = response.dni;
+            document.getElementsByName('lastName2')[0].value = response.lastName;
+            document.getElementsByName('firstName2')[0].value = response.firstName;
+            document.getElementsByName('email2')[0].value = response.email;
+
             // Mostrar el popup con los datos del estudiante
             $('#popUp').dialog({
                 closeText: ''
-            }).css('font-size', '15px')
+            }).css('font-size', '15px');
+        },
+        error: function (error) {
+            console.error(error.statusText);
         }
-
+    });
+}
         /**
          * Modifica un estudiante en la API y actualiza la tabla.
          */
@@ -228,11 +272,11 @@
                 document.getElementsByName('email2')[0].value.trim() !== '') {
                 modifyStudent().then(() => {
                     // Cerrar el popup y actualizar la tabla de estudiantes
-                    $('#popUp').dialog('close')
-                    getStudents()
+                    $('#popUp').dialog('close');
+                    getStudents();
                 }).catch(reason => {
-                    console.error(reason)
-                })
+                    console.error(reason);
+                });
             }
         }
 
@@ -242,12 +286,11 @@
          */
         function deleteStudent(id) {
             removeStudent(id).then(() => {
-                getStudents()
+                getStudents();
             }).catch(reason => {
-                console.error(reason)
-            })
+                console.error(reason);
+            });
         }
-
 
         /* FUNCIONES EXTRA */
 
@@ -261,10 +304,11 @@
                 event.preventDefault();
             }
         }
+
         /**
-        * Verifica si la tecla presionada es una letra.
+         * Verifica si la tecla presionada es una letra.
          * @param {object} event - El objeto del evento de teclado.
-        */
+         */
         function allowLettersOnly(event) {
             var keyCode = event.which || event.keyCode;
             if ((keyCode >= 65 && keyCode <= 90) || (keyCode >= 97 && keyCode <= 122)) {
@@ -273,14 +317,18 @@
                 event.preventDefault();
             }
         }
-
-
-
-
     </script>
+
+    <!-- <style>
+        input#dni {
+            text-align: right;
+        }
+    </style>
+    <script src="script.js"></script> -->
 </head>
 
 <body>
+    <ul id="students-list"></ul>
     <div id='popUp'>
         <table>
             <tr>
@@ -301,6 +349,8 @@
             </tr>
             <tr>
                 <td colspan='2' style='text-align: center'><button onclick='updateStudent()'>Update</button></td>
+
+                <td><button onclick='closeDiv()'>Close</button></td>
             </tr>
         </table>
     </div>
@@ -308,32 +358,31 @@
     <table style='border: 1px solid'>
         <thead>
             <tr>
-                <th style='text-align: left'>Id / Dni</th>
+                <th style='text-align: left'>Id</th>
+                <th style='text-align: left'>Dni</th>
                 <th style='text-align: left'>Last Name</th>
                 <th style='text-align: left'>First Name</th>
                 <th style='text-align: left'>Email</th>
-                <th colspan='2'></th>
+                <th></th>
+                <!-- <th colspan='2'></th> -->
+                <th></th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="tbody"></tbody>
         <tfoot>
             <tr>
-                <td><input id='id' style='text-align: right' onkeypress='allowNumbersOnly(event)'></td>
+                <td></td>
+                <td><input id='dni' style='text-align: right' onkeypress='allowNumbersOnly(event)'></td>
                 <td><input id='lastName' style='text-align: right' onkeypress='allowLettersOnly(event)'></td>
                 <td><input id='firstName' style='text-align: right' onkeypress='allowLettersOnly(event)'></td>
                 <td><input id='email'></td>
                 <td colspan='2' style='text-align: center'><button onclick='saveStudent()'>Add</button></td>
-                <td></td>
+                
             </tr>
         </tfoot>
     </table>
 
-    <script>
-        document.getElementById('dni').addEventListener('keypress', allowNumbersOnly);
-        document.getElementsByName('id2')[0].addEventListener('keypress', allowNumbersOnly);
-        document.getElementsById('lastName').addEventListener('keypress', allowLettersOnly);
-        document.getElementsById('firstName').addEventListener('keypress', allowLettersOnly);
-    </script>
+    
 </body>
 
 </html>
