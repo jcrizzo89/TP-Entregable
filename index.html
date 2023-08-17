@@ -2,75 +2,34 @@
 <html>
 
 <head>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TP Entregable 10/07/2023</title>
 
     <link rel="stylesheet" href="style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel='stylesheet' href='https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css'>
+    <script src='https://code.jquery.com/jquery-1.12.4.js'></script>
+    <script src='https://code.jquery.com/ui/1.12.1/jquery-ui.js'></script>
 
-    <style>
-        input#dni {
-            text-align: right;
-        }
-    </style>
-    <script src="script.js"></script>
-</head>
 
-<body>
-    <ul id="students-list"></ul>
-    <div id='popUp'>
-        <table>
-            <tr>
-                <td><label for='id2' style='font-weight: bold'>Id / Dni</label></td>
-                <td><input name='id2' style='text-align: right' readonly></td>
-            </tr>
-            <tr>
-                <td><label for='lastName2' style='font-weight: bold'>Last Name</label></td>
-                <td><input name='lastName2' style='text-align: right'></td>
-            </tr>
-            <tr>
-                <td><label for='firstName2' style='font-weight: bold'>First Name</label></td>
-                <td><input name='firstName2' style='text-align: right'></td>
-            </tr>
-            <tr>
-                <td><label for='email2' style='font-weight: bold'>Email</label></td>
-                <td><input name='email2' style='text-align: right'></td>
-            </tr>
-            <tr>
-                <td colspan='2' style='text-align: center'><button onclick='updateStudent()'>Update</button></td>
-            </tr>
-        </table>
-    </div>
 
-    <table style='border: 1px solid'>
-        <thead>
-            <tr>
-                <th style='text-align: left'>Id / Dni</th>
-                <th style='text-align: left'>Last Name</th>
-                <th style='text-align: left'>First Name</th>
-                <th style='text-align: left'>Email</th>
-                <th colspan='2'></th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-        <tfoot>
-            <tr>
-                <td><input id='dni' style='text-align: right' onkeypress='allowNumbersOnly(event)'></td>
-                <td><input id='lastName' style='text-align: right' onkeypress='allowLettersOnly(event)'></td>
-                <td><input id='firstName' style='text-align: right' onkeypress='allowLettersOnly(event)'></td>
-                <td><input id='email'></td>
-                <td colspan='2' style='text-align: center'><button onclick='saveStudent()'>Add</button></td>
-                <td></td>
-            </tr>
-        </tfoot>
-    </table>
 
     <script>
 
         // Ocultar el popup y cargar los estudiantes al cargar la página
-        $(document).ready(function () {
-            $('#popUp').hide();
-            getStudents(); // Cambiado de loadStudents() a getStudents()
-        });
+        // $(document).ready(function () {
+        //     $('#popUp').hide();
+        //     getStudents(); // Cambiado de loadStudents() a getStudents()
+        // });
+
+        url = "https://9744-181-231-122-56.ngrok-free.app/student"
+
+        window.onload = function () {
+            getStudents();
+        }
+
 
         /* PROMESAS */
 
@@ -79,19 +38,37 @@
          * @returns {Promise} Promesa con la respuesta de la API.
          */
         function loadStudents() {
+            //     return new Promise(function (resolve, reject) {
+            //         $.ajax({
+            //             url: url + '/getAll',
+            //             dataType: 'json',
+            //             success: function (response) {
+            //                 resolve(response);
+            //             },
+            //             error: function (error) {
+            //                 reject(Error(error.statusText));
+            //             }
+            //         });
+            //     });
+            // }
             return new Promise(function (resolve, reject) {
-                $.ajax({
-                    url: url + '/getAll',
-                    dataType: 'json',
-                    success: function (response) {
-                        resolve(response);
-                    },
-                    error: function (error) {
-                        reject(Error(error.statusText));
+                var request = new XMLHttpRequest();
+                request.open('GET', url + '/getAll');
+                request.responseType = 'json';
+                request.onload = function () {
+                    if (request.status == 200) {
+                        resolve(request.response);
+                    } else {
+                        reject(Error(request.statusText));
                     }
-                });
+                }
+                request.onerror = function () {
+                    alert("Error");
+                }
+                request.send();
             });
         }
+
 
         /**
          * Modifica un estudiante en la API.
@@ -204,7 +181,8 @@
          */
         function getStudents() {
             loadStudents().then(response => {
-                var tbody = document.querySelector('tbody');
+                var tbody = document.getElementById('tbody');
+                alert(tbody.innerHTML)
                 tbody.innerHTML = '';
                 response.forEach(student => {
                     var row = tbody.insertRow();
@@ -314,6 +292,71 @@
             }
         }
     </script>
+
+    <!-- <style>
+        input#dni {
+            text-align: right;
+        }
+    </style>
+    <script src="script.js"></script> -->
+</head>
+
+<body>
+    <ul id="students-list"></ul>
+    <div id='popUp'>
+        <table>
+            <tr>
+                <td><label for='id2' style='font-weight: bold'>Id / Dni</label></td>
+                <td><input name='id2' style='text-align: right' readonly></td>
+            </tr>
+            <tr>
+                <td><label for='lastName2' style='font-weight: bold'>Last Name</label></td>
+                <td><input name='lastName2' style='text-align: right'></td>
+            </tr>
+            <tr>
+                <td><label for='firstName2' style='font-weight: bold'>First Name</label></td>
+                <td><input name='firstName2' style='text-align: right'></td>
+            </tr>
+            <tr>
+                <td><label for='email2' style='font-weight: bold'>Email</label></td>
+                <td><input name='email2' style='text-align: right'></td>
+            </tr>
+            <tr>
+                <td colspan='2' style='text-align: center'><button onclick='updateStudent()'>Update</button></td>
+
+                <td><button onclick='closeDiv()'>Close</button></td>
+            </tr>
+        </table>
+    </div>
+
+    <table style='border: 1px solid'>
+        <thead>
+            <tr>
+                <th style='text-align: left'>Id</th>
+                <th style='text-align: left'>Dni</th>
+                <th style='text-align: left'>Last Name</th>
+                <th style='text-align: left'>First Name</th>
+                <th style='text-align: left'>Email</th>
+                <th></th>
+                <!-- <th colspan='2'></th> -->
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td><input id='dni' style='text-align: right' onkeypress='allowNumbersOnly(event)'></td>
+                <td><input id='lastName' style='text-align: right' onkeypress='allowLettersOnly(event)'></td>
+                <td><input id='firstName' style='text-align: right' onkeypress='allowLettersOnly(event)'></td>
+                <td><input id='email'></td>
+                <td colspan='2' style='text-align: center'><button onclick='saveStudent()'>Add</button></td>
+                
+            </tr>
+        </tfoot>
+    </table>
+
+    
 </body>
 
 </html>
