@@ -223,18 +223,44 @@
          * Muestra los datos de un estudiante en un popup.
          * @param {object} student - Los datos del estudiante a mostrar.
          */
+        // function viewStudent(student) {
+        //     document.getElementsByName('id2')[0].value = student.id;
+        //     document.getElementsByName('dni2')[0].value = student.dni;
+        //     document.getElementsByName('lastName2')[0].value = student.lastName;
+        //     document.getElementsByName('firstName2')[0].value = student.firstName;
+        //     document.getElementsByName('email2')[0].value = student.email;
+        //     // Mostrar el popup con los datos del estudiante
+        //     $('#popUp').dialog({
+        //         closeText: ''
+        //     }).css('font-size', '15px');
+        // }
         function viewStudent(student) {
-            document.getElementsByName('id2')[0].value = student.id;
-            document.getElementsByName('dni2')[0].value = student.dni;
-            document.getElementsByName('lastName2')[0].value = student.lastName;
-            document.getElementsByName('firstName2')[0].value = student.firstName;
-            document.getElementsByName('email2')[0].value = student.email;
+    // Obtener el ID del estudiante
+    const id = student.id;
+
+    // Obtener los datos del estudiante de la API
+    $.ajax({
+        url: url + `/${id}/get`,
+        type: 'GET',
+        contentType: 'application/json',
+        success: function (response) {
+            // Actualizar los campos del formulario con los datos del estudiante
+            document.getElementsByName('id2')[0].value = response.id;
+            document.getElementsByName('dni2')[0].value = response.dni;
+            document.getElementsByName('lastName2')[0].value = response.lastName;
+            document.getElementsByName('firstName2')[0].value = response.firstName;
+            document.getElementsByName('email2')[0].value = response.email;
+
             // Mostrar el popup con los datos del estudiante
             $('#popUp').dialog({
                 closeText: ''
             }).css('font-size', '15px');
+        },
+        error: function (error) {
+            console.error(error.statusText);
         }
-
+    });
+}
         /**
          * Modifica un estudiante en la API y actualiza la tabla.
          */
